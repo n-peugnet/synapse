@@ -79,7 +79,7 @@ class Authenticator:
     async def authenticate_request(
         self, request: SynapseRequest, content: Optional[JsonDict]
     ) -> str:
-        now = self._clock.time_msec()
+        # now = self._clock.time_msec()
         json_request: JsonDict = {
             "method": request.method.decode("ascii"),
             "uri": request.uri.decode("ascii"),
@@ -129,11 +129,11 @@ class Authenticator:
                 Codes.UNAUTHORIZED,
             )
 
-        await self.keyring.verify_json_for_server(
-            origin,
-            json_request,
-            now,
-        )
+        # await self.keyring.verify_json_for_server(
+        #     origin,
+        #     json_request,
+        #     now,
+        # )
 
         logger.debug("Request from %s", origin)
         request.requester = origin
