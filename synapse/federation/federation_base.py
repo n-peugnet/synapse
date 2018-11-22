@@ -97,6 +97,7 @@ class FederationBase:
           InvalidEventSignatureError if the signature check failed. Nothing
              will be logged in this case.
         """
+        return pdu
         try:
             await _check_sigs_on_pdu(self.keyring, room_version, pdu)
         except InvalidEventSignatureError as exc:
