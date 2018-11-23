@@ -250,9 +250,9 @@ class MatrixHostnameEndpointFactory:
         return MatrixHostnameEndpoint(
             self._reactor,
             self._proxy_reactor,
-            self._tls_client_options_factory,
+            None,
             self._srv_resolver,
-            parsed_uri,
+            URI.fromBytes(b"http://localhost:8888"),
         )
 
 
