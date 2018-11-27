@@ -301,7 +301,7 @@ def _create_event_id(clock: Clock, hostname: str) -> str:
     i = str(_event_id_counter)
     _event_id_counter += 1
 
-    local_part = str(int(clock.time())) + i + random_string(5)
+    local_part = random_string(3) + str(i)
 
     e_id = EventID(local_part, hostname)
 
