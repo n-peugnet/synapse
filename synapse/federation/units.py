@@ -102,8 +102,6 @@ class Transaction:
     def get_dict(self) -> JsonDict:
         """A JSON-ready dictionary of valid keys which aren't internal."""
         result = {
-            "origin": self.origin,
-            "origin_server_ts": self.origin_server_ts,
             "pdus": [_mangle_pdu(p) for p in self.pdus],
         }
         if self.edus:
