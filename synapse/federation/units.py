@@ -104,8 +104,25 @@ class Transaction:
         result = {
             "origin": self.origin,
             "origin_server_ts": self.origin_server_ts,
-            "pdus": self.pdus,
+            "pdus": [_mangle_pdu(p) for p in self.pdus],
         }
         if self.edus:
             result["edus"] = self.edus
         return result
+
+
+def _mangle_pdu(pdu_json: JsonDict):
+    pdu_json.pop("hashes", None)
+    pdu_json.pop("signatures", None)
+
+    pdu_json["auth_events"] = list(_strip_hashes(pdu_json["auth_events"]))
+    pdu_json["prev_events"] = list(_strip_hashes(pdu_json["prev_events"]))
+
+    return pdu_json
+
+
+def _strip_hashes(iterable):
+    return (
+        (e, {})
+        for e, _ in iterable
+    )
