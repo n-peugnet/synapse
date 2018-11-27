@@ -129,6 +129,7 @@ class RoomCreationHandler:
         self._event_auth_handler = hs.get_event_auth_handler()
         self.config = hs.config
         self.request_ratelimiter = hs.get_request_ratelimiter()
+        self._next_room_id = 0
 
         # Room state based off defined presets
         self._presets_dict: Dict[str, Dict[str, Any]] = {
@@ -1395,7 +1396,9 @@ class RoomCreationHandler:
         Returns:
             A random room ID of the form "!opaque_id:domain".
         """
-        random_string = stringutils.random_string(18)
+        i = self._next_room_id
+        self._next_room_id += 1
+        random_string = stringutils.random_string(3) + str(i)
         return RoomID(random_string, self.hs.hostname).to_string()
 
     async def _generate_and_create_room_id(
