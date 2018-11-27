@@ -18,6 +18,7 @@
 #
 #
 import logging
+import os
 import urllib.parse
 from typing import Any, Generator, List, Optional
 from urllib.request import (  # type: ignore[attr-defined]
@@ -52,6 +53,8 @@ from synapse.types import ISynapseReactor
 from synapse.util import Clock
 
 logger = logging.getLogger(__name__)
+
+USE_PROXY = "SYNAPSE_USE_PROXY" in os.environ
 
 
 @implementer(IAgent)
@@ -113,14 +116,24 @@ class MatrixFederationAgent:
         self._pool.maxPersistentPerHost = 5
         self._pool.cachedConnectionTimeout = 2 * 60
 
-        self._agent = Agent.usingEndpointFactory(
-            reactor,
-            MatrixHostnameEndpointFactory(
+        endpointFactory: IAgentEndpointFactory
+        if USE_PROXY:
+            endpointFactory = ProxyMatrixHostnameEndpointFactory(
                 reactor,
                 proxy_reactor,
                 tls_client_options_factory,
                 _srv_resolver,
-            ),
+            )
+        else:
+            endpointFactory = MatrixHostnameEndpointFactory(
+                reactor,
+                proxy_reactor,
+                tls_client_options_factory,
+                _srv_resolver,
+            )
+        self._agent = Agent.usingEndpointFactory(
+            reactor,
+            endpointFactory,
             pool=self._pool,
         )
         self.user_agent = user_agent
@@ -227,6 +240,36 @@ class MatrixFederationAgent:
 
 
 @implementer(IAgentEndpointFactory)
+class ProxyMatrixHostnameEndpointFactory(object):
+    """Factory for MatrixHostnameEndpoint that always return the proxy endpoint."""
+
+    def __init__(
+        self,
+        reactor: IReactorCore,
+        proxy_reactor: IReactorCore,
+        tls_client_options_factory: Optional[FederationPolicyForHTTPS],
+        srv_resolver: Optional[SrvResolver],
+    ):
+        self._reactor = reactor
+        self._proxy_reactor = proxy_reactor
+        self._tls_client_options_factory = tls_client_options_factory
+
+        if srv_resolver is None:
+            srv_resolver = SrvResolver()
+
+        self._srv_resolver = srv_resolver
+
+    def endpointForURI(self, _: URI) -> "MatrixHostnameEndpoint":
+        return MatrixHostnameEndpoint(
+            self._reactor,
+            self._proxy_reactor,
+            None,
+            self._srv_resolver,
+            URI.fromBytes(b"http://localhost:8888"),
+        )
+
+
+@implementer(IAgentEndpointFactory)
 class MatrixHostnameEndpointFactory:
     """Factory for MatrixHostnameEndpoint for parsing to an Agent."""
 
@@ -250,9 +293,9 @@ class MatrixHostnameEndpointFactory:
         return MatrixHostnameEndpoint(
             self._reactor,
             self._proxy_reactor,
-            None,
+            self._tls_client_options_factory,
             self._srv_resolver,
-            URI.fromBytes(b"http://localhost:8888"),
+            parsed_uri,
         )
 
 
