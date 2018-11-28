@@ -300,6 +300,21 @@ def event_from_pdu_json(pdu_json: JsonDict, room_version: RoomVersion) -> EventB
     if room_version.strict_canonicaljson:
         validate_canonicaljson(pdu_json)
 
+    if "auth_events" in pdu_json:
+        pdu_json["auth_events"] = [
+            (e, {}) if isinstance(e, str) else e for e in pdu_json["auth_events"]
+        ]
+
+    if "prev_events" in pdu_json:
+        pdu_json["prev_events"] = [
+            (e, {}) if isinstance(e, str) else e for e in pdu_json["prev_events"]
+        ]
+
+    if "origin" not in pdu_json:
+        pdu_json["origin"] = get_domain_from_id(pdu_json["sender"])
+
+    logger.info("Unmangled event to: %s", pdu_json)
+
     event = make_event_from_dict(pdu_json, room_version)
     return event
 

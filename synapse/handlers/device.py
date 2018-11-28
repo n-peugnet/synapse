@@ -1000,6 +1000,7 @@ class DeviceHandler(DeviceWorkerHandler):
                     # Notify replication that we've updated the device list stream.
                     self.notifier.notify_replication()
 
+                    """
                     if hosts:
                         logger.info(
                             "Sending device list update notif for %r to: %r",
@@ -1016,6 +1017,7 @@ class DeviceHandler(DeviceWorkerHandler):
                         # log_kv(
                         #     {"message": "sent device update to host", "host": host}
                         # )
+                    """
 
                     if current_stream_id != stream_id:
                         # Clear the set of hosts we've already sent to as we're

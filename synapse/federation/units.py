@@ -110,8 +110,11 @@ class Transaction:
 
 
 def _mangle_pdu(pdu_json: JsonDict):
+    pdu_json.pop("origin", None)
     pdu_json.pop("hashes", None)
     pdu_json.pop("signatures", None)
+    pdu_json.get("unsigned", {}).pop("age_ts", None)
+    pdu_json.get("unsigned", {}).pop("age", None)
 
     pdu_json["auth_events"] = list(_strip_hashes(pdu_json["auth_events"]))
     pdu_json["prev_events"] = list(_strip_hashes(pdu_json["prev_events"]))
@@ -122,7 +125,4 @@ def _mangle_pdu(pdu_json: JsonDict):
 
 
 def _strip_hashes(iterable):
-    return (
-        (e, {})
-        for e, _ in iterable
-    )
+    return (e for e, _ in iterable)
