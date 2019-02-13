@@ -105,6 +105,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+pdu_logger = logging.getLogger("synapse.federation.pdu_destination_logger")
+
 soft_failed_event_counter = Counter(
     "synapse_federation_soft_failed_events_total",
     "Events received over federation that we marked as soft_failed",
@@ -211,6 +213,21 @@ class FederationEventHandler:
         # We reprocess pdus when we have seen them only as outliers
         existing = await self._store.get_event(
             event_id, allow_none=True, allow_rejected=True
+        )
+
+        already_seen = (
+            existing and (
+                not existing.internal_metadata.is_outlier()
+                or pdu.internal_metadata.is_outlier()
+            )
+        )
+        pdu_logger.info(
+            "ReceivedPDU",
+            extra={
+                "event_id": pdu.event_id, "room_id": pdu.room_id,
+                "origin": origin, "already_seen": already_seen,
+                "server": self._server_name,
+            },
         )
 
         # FIXME: Currently we fetch an event again when we already have it
