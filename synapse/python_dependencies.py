@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 REQUIREMENTS = {
     "jsonschema>=2.5.1": ["jsonschema>=2.5.1"],
     "frozendict>=1": ["frozendict"],
-    "unpaddedbase64>=1.1.0": ["unpaddedbase64>=1.1.0"],
+    "unpaddedbase64==1.1.0": ["unpaddedbase64==1.1.0"],
     "canonicaljson>=1.1.3": ["canonicaljson>=1.1.3"],
     "signedjson>=1.0.0": ["signedjson>=1.0.0"],
     "pynacl>=1.2.1": ["nacl>=1.2.1", "nacl.bindings"],
@@ -45,7 +45,7 @@ REQUIREMENTS = {
     # Twisted has required pyopenssl 16.0 since about Twisted 16.6.
     "pyopenssl>=16.0.0": ["OpenSSL>=16.0.0"],
 
-    "pyyaml>=3.11": ["yaml"],
+    "pyyaml==3.11": ["yaml==3.11"],
     "pyasn1>=0.1.9": ["pyasn1"],
     "pyasn1-modules>=0.0.7": ["pyasn1_modules"],
     "daemonize>=2.3.1": ["daemonize"],
