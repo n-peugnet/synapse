@@ -39,11 +39,12 @@ REQUIREMENTS = {
     "signedjson>=1.0.0": ["signedjson>=1.0.0"],
     "pynacl>=1.2.1": ["nacl>=1.2.1", "nacl.bindings"],
     "service_identity>=16.0.0": ["service_identity>=16.0.0"],
-    "Twisted>=17.1.0": ["twisted>=17.1.0"],
+    "Twisted==18.9.0": ["twisted==18.9.0"],
     "treq>=15.1": ["treq>=15.1"],
 
     # Twisted has required pyopenssl 16.0 since about Twisted 16.6.
     "pyopenssl>=16.0.0": ["OpenSSL>=16.0.0"],
+    "cryptography==3.3.2": ["cryptography==3.3.2"],
 
     "pyyaml==3.11": ["yaml==3.11"],
     "pyasn1>=0.1.9": ["pyasn1"],
