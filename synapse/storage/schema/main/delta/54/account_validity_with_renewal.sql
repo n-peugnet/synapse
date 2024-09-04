@@ -45,5 +45,5 @@ CREATE TABLE IF NOT EXISTS account_validity (
     renewal_token TEXT
 );
 
-CREATE INDEX account_validity_email_sent_idx ON account_validity(email_sent, expiration_ts_ms)
-CREATE UNIQUE INDEX account_validity_renewal_string_idx ON account_validity(renewal_token)
+CREATE INDEX account_validity_email_sent_idx ON account_validity(email_sent, expiration_ts_ms);
+CREATE UNIQUE INDEX account_validity_renewal_string_idx ON account_validity(renewal_token);
