@@ -51,6 +51,11 @@ def run_create(
             """
             cur.execute(drop_rm_sql)
 
+            add_idx_sql = """
+            CREATE UNIQUE INDEX events_stream_ordering ON events(stream_ordering2);
+            """
+            cur.execute(add_idx_sql)
+
             add_cse_sql = """
             ALTER TABLE current_state_events ADD CONSTRAINT event_stream_ordering_fkey
             FOREIGN KEY (event_stream_ordering) REFERENCES events(stream_ordering2) NOT VALID;

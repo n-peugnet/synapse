@@ -205,14 +205,6 @@ class EventsBackgroundUpdatesStore(SQLBaseStore):
             _BackgroundUpdates.POPULATE_STREAM_ORDERING2,
             self._background_populate_stream_ordering2,
         )
-        # CREATE UNIQUE INDEX events_stream_ordering ON events(stream_ordering2);
-        self.db_pool.updates.register_background_index_update(
-            _BackgroundUpdates.INDEX_STREAM_ORDERING2,
-            index_name="events_stream_ordering",
-            table="events",
-            columns=["stream_ordering2"],
-            unique=True,
-        )
         # CREATE INDEX event_contains_url_index ON events(room_id, topological_ordering, stream_ordering) WHERE contains_url = true AND outlier = false;
         self.db_pool.updates.register_background_index_update(
             _BackgroundUpdates.INDEX_STREAM_ORDERING2_CONTAINS_URL,
