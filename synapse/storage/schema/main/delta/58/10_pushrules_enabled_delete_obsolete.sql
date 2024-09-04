@@ -39,7 +39,7 @@
 **/
 
 DELETE FROM push_rules_enable WHERE
-  rule_id NOT LIKE 'global/%/.m.rule.%'
+  rule_id NOT LIKE 'global/%%/.m.rule.%%'
   AND NOT EXISTS (
     SELECT 1 FROM push_rules
     WHERE push_rules.user_name = push_rules_enable.user_name
