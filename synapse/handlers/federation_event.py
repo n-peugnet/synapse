@@ -876,6 +876,22 @@ class FederationEventHandler:
             [event.event_id for event in events]
         )
 
+        for event in events:
+            already_seen = (
+                event in existing_events_map and (
+                    not existing_events_map[event].event.internal_metadata.is_outlier()
+                    or event.internal_metadata.is_outlier()
+                )
+            )
+            pdu_logger.info(
+                "ReceivedPDU",
+                extra={
+                    "event_id": event.event_id, "room_id": event.room_id,
+                    "origin": origin, "already_seen": already_seen,
+                    "server": self._server_name,
+                },
+            )
+
         new_events: List[EventBase] = []
         for event in events:
             event_id = event.event_id
