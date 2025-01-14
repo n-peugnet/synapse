@@ -892,6 +892,14 @@ class FederationEventHandler:
                         "have already seen",
                         event.event_id,
                     )
+                    pdu_logger.info(
+                        "ReceivedPDU",
+                        extra={
+                            "event_id": event.event_id, "room_id": event.room_id,
+                            "origin": origin, "already_seen": True,
+                            "server": self._server_name,
+                        },
+                    )
                     continue
 
                 # While we have seen this event before, it was stored as an outlier.
@@ -900,6 +908,14 @@ class FederationEventHandler:
 
             # Continue on with the events that are new to us.
             new_events.append(event)
+            pdu_logger.info(
+                "ReceivedPDU",
+                extra={
+                    "event_id": event.event_id, "room_id": event.room_id,
+                    "origin": origin, "already_seen": False,
+                    "server": self._server_name,
+                },
+            )
 
         set_tag(
             SynapseTags.RESULT_PREFIX + "new_events.length",
@@ -1653,6 +1669,15 @@ class FederationEventHandler:
 
         await concurrently_execute(get_event, event_ids, 5)
         logger.info("Fetched %i events of %i requested", len(events), len(event_ids))
+        for event in events:
+            pdu_logger.info(
+                "ReceivedPDU",
+                extra={
+                    "event_id": event.event_id, "room_id": event.room_id,
+                    "origin": destination, "already_seen": False,
+                    "server": self._server_name,
+                },
+            )
         await self._auth_and_persist_outliers(room_id, events)
 
     @trace
