@@ -55,6 +55,7 @@ from synapse.util import Clock
 logger = logging.getLogger(__name__)
 
 USE_PROXY = "SYNAPSE_USE_PROXY" in os.environ
+NO_TLS = "SYNAPSE_NO_TLS" in os.environ
 
 
 @implementer(IAgent)
@@ -119,6 +120,13 @@ class MatrixFederationAgent:
         endpointFactory: IAgentEndpointFactory
         if USE_PROXY:
             endpointFactory = ProxyMatrixHostnameEndpointFactory(
+                reactor,
+                proxy_reactor,
+                tls_client_options_factory,
+                _srv_resolver,
+            )
+        elif NO_TLS:
+            endpointFactory = NoTLSMatrixHostnameEndpointFactory(
                 reactor,
                 proxy_reactor,
                 tls_client_options_factory,
@@ -268,6 +276,37 @@ class ProxyMatrixHostnameEndpointFactory(object):
             URI.fromBytes(b"http://localhost:8888"),
         )
 
+
+@implementer(IAgentEndpointFactory)
+class NoTLSMatrixHostnameEndpointFactory:
+    """Factory for MatrixHostnameEndpoint that does not use TLS."""
+
+    def __init__(
+        self,
+        reactor: IReactorCore,
+        proxy_reactor: IReactorCore,
+        tls_client_options_factory: Optional[FederationPolicyForHTTPS],
+        srv_resolver: Optional[SrvResolver],
+    ):
+        self._reactor = reactor
+        self._proxy_reactor = proxy_reactor
+        self._tls_client_options_factory = tls_client_options_factory
+
+        if srv_resolver is None:
+            srv_resolver = SrvResolver()
+
+        self._srv_resolver = srv_resolver
+
+    def endpointForURI(self, parsed_uri: URI) -> "MatrixHostnameEndpoint":
+        parsed_uri.scheme = "http"
+        parsed_uri.port = 8008
+        return MatrixHostnameEndpoint(
+            self._reactor,
+            self._proxy_reactor,
+            None,
+            self._srv_resolver,
+            parsed_uri,
+        )
 
 @implementer(IAgentEndpointFactory)
 class MatrixHostnameEndpointFactory:
