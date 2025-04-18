@@ -1430,6 +1430,18 @@ class FederationHandler:
 
         return missing_events
 
+    async def on_has_events(
+        self,
+        origin: str,
+        event_ids: List[str],
+    ) -> Dict[str, bool]:
+        events = await self.store.get_events_as_list(event_ids)
+        has_events = dict.fromkeys(event_ids, False)
+        for e in events:
+            has_events[e.event_id] = True
+
+        return has_events
+
     async def exchange_third_party_invite(
         self, sender_user_id: str, target_user_id: str, room_id: str, signed: JsonDict
     ) -> None:

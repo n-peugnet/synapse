@@ -637,6 +637,26 @@ class FederationGetMissingEventsServlet(BaseFederationServerServlet):
         return 200, result
 
 
+class FederationHasEventsServlet(BaseFederationServerServlet):
+    PATH = "/has_events"
+    CATEGORY = "Federation requests"
+
+    async def on_POST(
+        self,
+        origin: str,
+        content: JsonDict,
+        query: Dict[bytes, List[bytes]],
+    ) -> Tuple[int, JsonDict]:
+        events = content.get("events", [])
+
+        result = await self.handler.on_has_events(
+            origin,
+            events=events,
+        )
+
+        return 200, result
+
+
 class On3pidBindServlet(BaseFederationServerServlet):
     PATH = "/3pid/onbind"
     CATEGORY = "Federation requests"
@@ -898,6 +918,7 @@ FEDERATION_SERVLET_CLASSES: Tuple[Type[BaseFederationServlet], ...] = (
     FederationV1InviteServlet,
     FederationV2InviteServlet,
     FederationGetMissingEventsServlet,
+    FederationHasEventsServlet,
     FederationEventAuthServlet,
     FederationClientKeysQueryServlet,
     FederationUserDevicesQueryServlet,

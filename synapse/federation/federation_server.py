@@ -1092,6 +1092,14 @@ class FederationServer(FederationBase):
 
         return {"events": [ev.get_pdu_json(time_now) for ev in missing_events]}
 
+    async def on_has_events(
+        self,
+        origin: str,
+        events: List[str],
+    ) -> Dict[str, Dict[str, bool]]:
+        has_events = await self.handler.on_has_events(origin, events)
+        return {"events": has_events}
+
     async def on_openid_userinfo(self, token: str) -> Optional[str]:
         ts_now_ms = self._clock.time_msec()
         return await self.store.get_user_id_for_open_id_token(token, ts_now_ms)
