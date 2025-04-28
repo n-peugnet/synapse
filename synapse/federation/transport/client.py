@@ -751,6 +751,21 @@ class TransportLayerClient:
             timeout=timeout,
         )
 
+    async def has_events(
+        self,
+        destination: str,
+        events: Iterable[str],
+    ) -> JsonDict:
+        path = _create_v1_path("/has_events")
+
+        return await self.client.post_json(
+            destination=destination,
+            path=path,
+            data={
+                "events": events,
+            },
+        )
+
     async def get_room_complexity(self, destination: str, room_id: str) -> JsonDict:
         """
         Args:

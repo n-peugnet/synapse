@@ -71,6 +71,21 @@ class TransactionManager:
         # HACK to get unique tx id
         self._next_txn_id = int(self.clock.time_msec())
 
+    async def check_has_events(
+        self,
+        destination: str,
+        pdus: List[EventBase],
+    ) -> bool:
+        events = list(map(lambda p: p.event_id, pdus))
+        response = await self._transport_layer.has_events(destination, events)
+        if "events" not in response:
+            raise Exception("Invalid has_events response")
+        r_events = response["events"]
+        for e in events:
+            if not r_events[e]:
+                return False
+        return True
+
     @measure_func("_send_new_transaction")
     async def send_new_transaction(
         self,

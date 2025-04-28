@@ -22,6 +22,7 @@
 import datetime
 import logging
 from collections import OrderedDict
+import os
 from types import TracebackType
 from typing import TYPE_CHECKING, Dict, Hashable, Iterable, List, Optional, Tuple, Type
 
@@ -51,6 +52,7 @@ if TYPE_CHECKING:
 
 # This is defined in the Matrix spec and enforced by the receiver.
 MAX_EDUS_PER_TRANSACTION = 100
+CHECK_HAS_EVENTS = "SYNAPSE_CHECK_HAS_EVENTS" in os.environ
 
 logger = logging.getLogger(__name__)
 
@@ -365,6 +367,15 @@ class PerDestinationQueue:
                             len(pending_pdus),
                         )
 
+                    # Send has_events request to check if we need really need
+                    # to send the transaction.
+                    if CHECK_HAS_EVENTS:
+                        if await self._transaction_manager.check_has_events(
+                            self._destination, pending_pdus
+                        ):
+                            return
+
+                    # Effectively send the transaction.
                     await self._transaction_manager.send_new_transaction(
                         self._destination, pending_pdus, pending_edus
                     )
