@@ -980,7 +980,9 @@ class FederationSender(AbstractFederationSender):
         ):
             return
 
-        self._get_per_destination_queue(destination).attempt_new_transaction()
+        queue = self._get_per_destination_queue(destination)
+        queue.mark_waking_up()
+        queue.attempt_new_transaction()
 
     @staticmethod
     def get_current_token() -> int:

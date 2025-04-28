@@ -122,6 +122,9 @@ class PerDestinationQueue:
         # queued up to be sent.
         self._new_data_to_send = False
 
+        # Flag that indicate that the destination have just been woke up.
+        self._waking_up = False
+
         # True whilst we are sending events that the remote homeserver missed
         # because it was unreachable. We start in this state so we can perform
         # catch-up at startup.
@@ -288,6 +291,13 @@ class PerDestinationQueue:
 
         self._new_data_to_send = True
 
+    def mark_waking_up(self) -> None:
+        """Marks that the destination has been woke up, meaning that the timers
+        have been reset and we have to check has_events before sending the
+        transaction.
+        """
+        self._waking_up = True
+
     def attempt_new_transaction(self) -> None:
         """Try to start a new transaction to this destination
 
@@ -369,11 +379,13 @@ class PerDestinationQueue:
 
                     # Send has_events request to check if we need really need
                     # to send the transaction.
-                    if CHECK_HAS_EVENTS:
+                    if CHECK_HAS_EVENTS and self._waking_up:
                         if await self._transaction_manager.check_has_events(
                             self._destination, pending_pdus
                         ):
                             return
+
+                    self._waking_up = False
 
                     # Effectively send the transaction.
                     await self._transaction_manager.send_new_transaction(
