@@ -380,10 +380,14 @@ class PerDestinationQueue:
                     # Send has_events request to check if we need really need
                     # to send the transaction.
                     if CHECK_HAS_EVENTS and self._waking_up:
-                        if await self._transaction_manager.check_has_events(
+                        missing_events = await self._transaction_manager.check_has_events(
                             self._destination, pending_pdus
-                        ):
+                        )
+                        if not missing_events:
                             return
+                        pending_pdus = list(filter(
+                            lambda e: e.event_id in missing_events, pending_pdus
+                        ))
 
                     self._waking_up = False
 
