@@ -21,6 +21,7 @@
 
 import functools
 import logging
+import os
 import re
 import time
 from http import HTTPStatus
@@ -47,6 +48,8 @@ from synapse.util.stringutils import parse_and_validate_server_name
 
 if TYPE_CHECKING:
     from synapse.server import HomeServer
+
+DISABLE_WAKE_ON_REQUEST = os.environ.get("SYNAPSE_DISABLE_WAKE_ON_REQUEST", "")
 
 logger = logging.getLogger(__name__)
 
@@ -141,7 +144,7 @@ class Authenticator:
         # If we get a valid signed request from the other side, its probably
         # alive
         retry_timings = await self.store.get_destination_retry_timings(origin)
-        if retry_timings and retry_timings.retry_last_ts:
+        if not DISABLE_WAKE_ON_REQUEST and retry_timings and retry_timings.retry_last_ts:
             run_in_background(self.reset_retry_timings, origin)
 
         return origin
